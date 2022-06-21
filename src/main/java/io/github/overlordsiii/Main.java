@@ -21,7 +21,6 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.ErrorHandler;
 
 public class Main {
 	public static final Logger LOGGER = LogManager.getLogger("QuotebookBot");
@@ -66,8 +65,8 @@ public class Main {
 		if (!CONFIG.getConfigOption("createdCommands", Boolean::valueOf)) {
 			JDA.awaitReady()
 				.updateCommands()
-				.addCommands(Commands.slash("reaction-id", "Sets the id of the reaction for quotebook")
-					.addOption(OptionType.INTEGER, "id", "ID of the reaction (slash commands don't have)"))
+				.addCommands(Commands.slash("reaction-unicode", "Sets the unicode of the reaction for quotebook")
+					.addOption(OptionType.STRING, "unicode", "Unicode of the reaction (slash commands don't have)"))
 				.addCommands(Commands.slash("community-quotebook-channel", "Sets the channel for community quotebook submissions to be put")
 					.addOption(OptionType.CHANNEL, "channel", "Community Quotebook Channel"))
 				.addCommands(Commands.slash("hall-of-fame-channel", "Sets the channel for hall of fame quotes to be put")
@@ -94,7 +93,7 @@ public class Main {
 					.serverConfig()
 					.setFileName(guild.getId() + ".properties")
 					//set reaction ID default to star reaction
-					.addConfigOption("reaction-id", "987128633686646814")
+					.addConfigOption("reaction-unicode", "⭐")
 					.addConfigOption("community-quotebook-channel", "")
 					.addConfigOption("hall-of-fame-channel", "")
 					.addConfigOption("hall-of-fame-enabled", "true")

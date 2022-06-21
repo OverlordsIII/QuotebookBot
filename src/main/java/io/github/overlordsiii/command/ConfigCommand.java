@@ -19,7 +19,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 public class ConfigCommand {
 
 	private static final Map<String, String> KEY_TO_OPTION = fillMap(new HashMap<>(), map -> {
-		map.put("reaction-id", "id");
+		map.put("reaction-unicode", "unicode");
 		map.put("community-quotebook-channel", "channel");
 		map.put("hall-of-fame-channel", "channel");
 		map.put("hall-of-fame-stars-number", "number");
@@ -97,6 +97,12 @@ public class ConfigCommand {
 			guildConfig.reload();
 			Main.SERVER_CONFIG_LISTS.replace(event.getGuild().getId(), guildConfig);
 			event.reply("Set config value `" + configKey + "` to the role `" + roleValue.getName() + "`").queue();
+		} else {
+			String configValue = mapping.getAsString();
+			guildConfig.setConfigOption(configKey, configValue);
+			guildConfig.reload();
+			Main.SERVER_CONFIG_LISTS.replace(event.getGuild().getId(), guildConfig);
+			event.reply("Set config value `" + configKey + "` to `" + configValue + "`").queue();
 		}
 	}
 

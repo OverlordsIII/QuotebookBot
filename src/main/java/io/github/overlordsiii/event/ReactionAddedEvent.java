@@ -31,11 +31,13 @@ public class ReactionAddedEvent {
 			return;
 		}
 
+		if (event.getReactionEmote().isEmote() || !event.getReactionEmote().isEmoji()) return;
+
 		PropertiesHandler guildConfig = Main.SERVER_CONFIG_LISTS.get(guild.getId());
 
-		String reactionEmoteID = event.getReactionEmote().getId();
+		String reactionEmoteUnicode = event.getReactionEmote().getEmoji();
 
-		String configReactionID = guildConfig.getConfigOption("reaction-id", Function.identity());
+		String configReactionUnicode = guildConfig.getConfigOption("reaction-unicode", Function.identity());
 
 		int communityQuotebookNumber = guildConfig.getConfigOption("community-quotebook-stars-number", Integer::parseInt);
 
@@ -47,32 +49,32 @@ public class ReactionAddedEvent {
 
 		MessageChannel hallOfFameChannel = guildConfig.getConfigOption("hall-of-fame-channel", s -> getChannelById(s, event.getGuild()));
 
-		if (!reactionEmoteID.equals(configReactionID)) {
+		if (!reactionEmoteUnicode.equals(configReactionUnicode)) {
 			return;
 		}
 
-		Message reactedMessage = event.getChannel().getHistory().getMessageById(event.getMessageId());
+		event.retrieveMessage().queue(message -> {
+			if (message == null || !message.getEmbeds().isEmpty()) {
+				return;
+			}
 
-		if (reactedMessage == null || !reactedMessage.getEmbeds().isEmpty()) {
-			return;
-		}
+			if (message.getAuthor().isBot()) {
+				return;
+			}
 
-		if (reactedMessage.getAuthor().isBot()) {
-			return;
-		}
+			int starNum = Objects.requireNonNull(message.getReactionByUnicode(reactionEmoteUnicode)).getCount();
 
-		int starNum = Objects.requireNonNull(reactedMessage.getReactionById(reactionEmoteID)).getCount();
+			// eligible
+			if (starNum >= communityQuotebookNumber && communityQuotebookChannel != null) {
+				MessageEmbed embed = createEmbed(message);
+				communityQuotebookChannel.sendMessageEmbeds(embed).queue();
+			}
 
-		// eligible
-		if (starNum >= communityQuotebookNumber && communityQuotebookChannel != null) {
-			MessageEmbed embed = createEmbed(reactedMessage);
-			communityQuotebookChannel.sendMessageEmbeds(embed).queue();
-		}
-
-		if (starNum >= hallOfFameNumber && hallOfFameEnabled && hallOfFameChannel != null) {
-			MessageEmbed embed = createEmbed(reactedMessage);
-			hallOfFameChannel.sendMessageEmbeds(embed).queue();
-		}
+			if (starNum >= hallOfFameNumber && hallOfFameEnabled && hallOfFameChannel != null) {
+				MessageEmbed embed = createEmbed(message);
+				hallOfFameChannel.sendMessageEmbeds(embed).queue();
+			}
+		});
 	}
 
 	@Nullable
