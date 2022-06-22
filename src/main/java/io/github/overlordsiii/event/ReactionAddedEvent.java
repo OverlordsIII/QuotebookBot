@@ -37,7 +37,7 @@ public class ReactionAddedEvent {
 
 		String reactionEmoteUnicode = event.getReactionEmote().getEmoji();
 
-		String configReactionUnicode = guildConfig.getConfigOption("reaction-unicode", Function.identity());
+		String configReactionUnicode = guildConfig.getConfigOption("reaction-emoji", Function.identity());
 
 		int communityQuotebookNumber = guildConfig.getConfigOption("community-quotebook-stars-number", Integer::parseInt);
 

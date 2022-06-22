@@ -19,7 +19,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 public class ConfigCommand {
 
 	private static final Map<String, String> KEY_TO_OPTION = fillMap(new HashMap<>(), map -> {
-		map.put("reaction-unicode", "unicode");
+		map.put("reaction-emoji", "emoji");
 		map.put("community-quotebook-channel", "channel");
 		map.put("hall-of-fame-channel", "channel");
 		map.put("hall-of-fame-stars-number", "number");

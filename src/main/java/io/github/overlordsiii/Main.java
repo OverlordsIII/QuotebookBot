@@ -62,11 +62,13 @@ public class Main {
 			LOGGER.error("Error while initializing JDA Bridge!");
 			e.printStackTrace();
 		}
+
+
 		if (!CONFIG.getConfigOption("createdCommands", Boolean::valueOf)) {
 			JDA.awaitReady()
 				.updateCommands()
-				.addCommands(Commands.slash("reaction-unicode", "Sets the unicode of the reaction for quotebook")
-					.addOption(OptionType.STRING, "unicode", "Unicode of the reaction (slash commands don't have)"))
+				.addCommands(Commands.slash("reaction-emoji", "Sets the emoji of the reaction for quotebook")
+					.addOption(OptionType.STRING, "emoji", "emoji of the reaction (can't be a custom emote)"))
 				.addCommands(Commands.slash("community-quotebook-channel", "Sets the channel for community quotebook submissions to be put")
 					.addOption(OptionType.CHANNEL, "channel", "Community Quotebook Channel"))
 				.addCommands(Commands.slash("hall-of-fame-channel", "Sets the channel for hall of fame quotes to be put")
@@ -93,7 +95,7 @@ public class Main {
 					.serverConfig()
 					.setFileName(guild.getId() + ".properties")
 					//set reaction ID default to star reaction
-					.addConfigOption("reaction-unicode", "⭐")
+					.addConfigOption("reaction-emoji", "\u2B50")
 					.addConfigOption("community-quotebook-channel", "")
 					.addConfigOption("hall-of-fame-channel", "")
 					.addConfigOption("hall-of-fame-enabled", "true")
