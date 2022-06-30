@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
+import net.dv8tion.jda.api.requests.ErrorResponse;
 
 public class ReactionAddedEvent {
 
@@ -66,13 +67,19 @@ public class ReactionAddedEvent {
 
 			// eligible
 			if (starNum >= communityQuotebookNumber && communityQuotebookChannel != null) {
-				MessageEmbed embed = createEmbed(message);
-				communityQuotebookChannel.sendMessageEmbeds(embed).queue();
+				Message msg = communityQuotebookChannel.getHistory().getMessageById(message.getIdLong());
+				if (msg == null) {
+					MessageEmbed embed = createEmbed(message);
+					communityQuotebookChannel.sendMessageEmbeds(embed).queue();
+				}
 			}
 
 			if (starNum >= hallOfFameNumber && hallOfFameEnabled && hallOfFameChannel != null) {
-				MessageEmbed embed = createEmbed(message);
-				hallOfFameChannel.sendMessageEmbeds(embed).queue();
+				Message msg = hallOfFameChannel.getHistory().getMessageById(message.getIdLong());
+				if (msg == null) {
+					MessageEmbed embed = createEmbed(message);
+					hallOfFameChannel.sendMessageEmbeds(embed).queue();
+				}
 			}
 		});
 	}
