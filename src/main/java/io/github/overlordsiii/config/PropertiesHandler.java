@@ -34,7 +34,7 @@ public class PropertiesHandler {
 
 		String fileNameNoExtension = filename.substring(0, filename.indexOf(".properties"));
 
-		this.propertiesPath = serverConfig ? CONFIG_HOME_DIRECTORY.resolve(fileNameNoExtension).resolve(filename) : CONFIG_HOME_DIRECTORY.resolve(filename);
+		this.propertiesPath = serverConfig ? CONFIG_HOME_DIRECTORY.resolve(fileNameNoExtension).resolve("guild-config.properties") : CONFIG_HOME_DIRECTORY.resolve(filename);
 		this.configValues = configValues;
 
 		if (serverConfig) {
@@ -151,12 +151,22 @@ public class PropertiesHandler {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder
-			.append("\"" + propertiesPath.getFileName() + "\"" + ": ")
+			.append("\"")
+			.append(propertiesPath.getFileName())
+			.append("\"")
+			.append(": ")
 			.append("{\n");
 
 		configValues.forEach((s, s2) -> {
-			builder.append("\"" + s + "\"" + ": " + "\"" + s2 + "\"");
-			builder.append("\n");
+			builder
+				.append("\"")
+				.append(s)
+				.append("\"")
+				.append(": ")
+				.append("\"")
+				.append(s2)
+				.append("\"")
+				.append("\n");
 		});
 
 		builder.append("}");

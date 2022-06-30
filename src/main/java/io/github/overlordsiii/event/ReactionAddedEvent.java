@@ -14,10 +14,8 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.SubscribeEvent;
-import net.dv8tion.jda.api.requests.ErrorResponse;
 
 public class ReactionAddedEvent {
 
@@ -67,21 +65,59 @@ public class ReactionAddedEvent {
 
 			// eligible
 			if (starNum >= communityQuotebookNumber && communityQuotebookChannel != null) {
-				Message msg = communityQuotebookChannel.getHistory().getMessageById(message.getIdLong());
-				if (msg == null) {
-					MessageEmbed embed = createEmbed(message);
-					communityQuotebookChannel.sendMessageEmbeds(embed).queue();
-				}
+				MessageEmbed embed = createEmbed(message, starNum, reactionEmoteUnicode);
+				communityQuotebookChannel.getHistory().retrievePast(100).queue(messages -> {
+					Message sentMessage = null;
+					for (Message message1 : messages) {
+						if (!message1.getEmbeds().isEmpty()) {
+							MessageEmbed embed1 = message1.getEmbeds().get(0);
+							if (embed1.getDescription() != null && doesFieldContainMsgUrl(embed1.getDescription(), message.getJumpUrl())) {
+								sentMessage = message1;
+							}
+						}
+					}
+
+					// message has already been sent
+					if (sentMessage != null) {
+						//edit the original message to update stars
+						sentMessage.editMessageEmbeds(embed).queue();
+					} else {
+						communityQuotebookChannel.sendMessageEmbeds(embed).queue();
+					}
+				});
 			}
 
 			if (starNum >= hallOfFameNumber && hallOfFameEnabled && hallOfFameChannel != null) {
-				Message msg = hallOfFameChannel.getHistory().getMessageById(message.getIdLong());
-				if (msg == null) {
-					MessageEmbed embed = createEmbed(message);
-					hallOfFameChannel.sendMessageEmbeds(embed).queue();
-				}
+				MessageEmbed embed = createEmbed(message, starNum, reactionEmoteUnicode);
+				hallOfFameChannel.getHistory().retrievePast(100).queue(messages -> {
+					Message sentMessage = null;
+					for (Message message1 : messages) {
+						if (!message1.getEmbeds().isEmpty()) {
+							MessageEmbed embed1 = message1.getEmbeds().get(0);
+							if (embed1.getDescription() != null && doesFieldContainMsgUrl(embed1.getDescription(), message.getJumpUrl())) {
+								sentMessage = message1;
+							}
+						}
+					}
+
+					// message has already been sent
+					if (sentMessage != null) {
+						//edit the original message to update stars
+						sentMessage.editMessageEmbeds(embed).queue();
+					} else {
+						hallOfFameChannel.sendMessageEmbeds(embed).queue();
+					}
+				});
 			}
 		});
+	}
+
+	private static boolean doesFieldContainMsgUrl(String description, String urlToBeChecked) {
+		if (description.isEmpty()) {
+			return false;
+		}
+
+		return description.contains(urlToBeChecked);
 	}
 
 	@Nullable
@@ -91,6 +127,7 @@ public class ReactionAddedEvent {
 		}
 
 		try {
+			//ensure in the right format
 			Long.parseLong(s);
 		} catch (NumberFormatException e) {
 			return null;
@@ -99,7 +136,7 @@ public class ReactionAddedEvent {
 		return guild.getTextChannelById(s);
 	}
 
-	private static MessageEmbed createEmbed(Message message) {
+	private static MessageEmbed createEmbed(Message message, int starNum, String unicode) {
 		EmbedBuilder builder = new EmbedBuilder();
 		if (!message.getAttachments().isEmpty()) {
 			Message.Attachment attachment = message.getAttachments().get(0);
@@ -116,6 +153,8 @@ public class ReactionAddedEvent {
 			.appendDescription("\n")
 			.appendDescription("\n")
 			.appendDescription("[Click to jump to message!](" + message.getJumpUrl() + ")")
+			.appendDescription("\n")
+			.appendDescription(starNum + " " + unicode)
 			.setFooter(msgTime.getMonthValue() + "/" + msgTime.getDayOfMonth() + "/" + msgTime.getYear());
 
 		return builder.build();
